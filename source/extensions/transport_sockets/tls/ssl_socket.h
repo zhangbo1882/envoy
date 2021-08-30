@@ -49,7 +49,8 @@ class SslSocket : public Network::TransportSocket,
 public:
   SslSocket(Envoy::Ssl::ContextSharedPtr ctx, InitialState state,
             const Network::TransportSocketOptionsConstSharedPtr& transport_socket_options,
-            Ssl::HandshakerFactoryCb handshaker_factory_cb);
+            Ssl::HandshakerFactoryCb handshaker_factory_cb, bool enabel_tls_keylog,
+            const std::string tls_keylog_path);
 
   // Network::TransportSocket
   void setTransportSocketCallbacks(Network::TransportSocketCallbacks& callbacks) override;
@@ -71,6 +72,10 @@ public:
   Network::TransportSocketCallbacks* transportSocketCallbacks() override { return callbacks_; }
 
   SSL* rawSslForTest() const { return rawSsl(); }
+  void enableTlsKeyLog();
+  void disableTlsKeyLog();
+  static void keylogCallback(const SSL* ssl, const char* line);
+  static int ssl_ex_data_index_;
 
 protected:
   SSL* rawSsl() const { return info_->ssl(); }
@@ -94,6 +99,9 @@ private:
   std::string failure_reason_;
 
   SslHandshakerImplSharedPtr info_;
+  bool enable_tls_keylog_;
+  BIO* bio_keylog_;
+  const std::string tls_keylog_path_;
 };
 
 class ClientSslSocketFactory : public Network::TransportSocketFactory,
@@ -140,6 +148,8 @@ public:
 
   // Secret::SecretCallbacks
   void onAddOrUpdateSecret() override;
+  bool tlsKeyLogMatch(const Network::Address::InstanceConstSharedPtr local,
+                      const Network::Address::InstanceConstSharedPtr remote) const;
 
 private:
   Ssl::ContextManager& manager_;

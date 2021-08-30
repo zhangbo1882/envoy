@@ -1324,3 +1324,5 @@ transid
 routable
 vhosts
 infos
+NSS
+SSLKEYLOGFILE
