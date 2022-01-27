@@ -11,11 +11,8 @@ namespace Network {
 class AlpnDecoratingTransportSocketOptions : public TransportSocketOptions {
 public:
   AlpnDecoratingTransportSocketOptions(std::vector<std::string>&& alpn,
-                                       TransportSocketOptionsConstSharedPtr inner_options,
-                                       const Address::InstanceConstSharedPtr local = nullptr,
-                                       const Address::InstanceConstSharedPtr remote = nullptr)
-      : alpn_fallback_(std::move(alpn)), inner_options_(std::move(inner_options)), local_(local),
-        remote_(remote) {}
+                                       TransportSocketOptionsConstSharedPtr inner_options)
+      : alpn_fallback_(std::move(alpn)), inner_options_(std::move(inner_options)) {}
   // Network::TransportSocketOptions
   const absl::optional<std::string>& serverNameOverride() const override {
     return inner_options_->serverNameOverride();
@@ -34,14 +31,10 @@ public:
   }
   void hashKey(std::vector<uint8_t>& key,
                const Network::TransportSocketFactory& factory) const override;
-  const Address::InstanceConstSharedPtr getLocal() const override { return local_; };
-  const Address::InstanceConstSharedPtr getRemote() const override { return remote_; };
 
 private:
   const std::vector<std::string> alpn_fallback_;
   const TransportSocketOptionsConstSharedPtr inner_options_;
-  const Address::InstanceConstSharedPtr local_;
-  const Address::InstanceConstSharedPtr remote_;
 };
 
 class TransportSocketOptionsImpl : public TransportSocketOptions {
@@ -50,15 +43,13 @@ public:
       absl::string_view override_server_name = "",
       std::vector<std::string>&& override_verify_san_list = {},
       std::vector<std::string>&& override_alpn = {}, std::vector<std::string>&& fallback_alpn = {},
-      absl::optional<Network::ProxyProtocolData> proxy_proto_options = absl::nullopt,
-      const Address::InstanceConstSharedPtr local = nullptr,
-      const Address::InstanceConstSharedPtr remote = nullptr)
+      absl::optional<Network::ProxyProtocolData> proxy_proto_options = absl::nullopt)
       : override_server_name_(override_server_name.empty()
                                   ? absl::nullopt
                                   : absl::optional<std::string>(override_server_name)),
         override_verify_san_list_{std::move(override_verify_san_list)},
         override_alpn_list_{std::move(override_alpn)}, alpn_fallback_{std::move(fallback_alpn)},
-        proxy_protocol_options_(proxy_proto_options), local_(local), remote_(remote) {}
+        proxy_protocol_options_(proxy_proto_options) {}
 
   // Network::TransportSocketOptions
   const absl::optional<std::string>& serverNameOverride() const override {
@@ -78,8 +69,6 @@ public:
   }
   void hashKey(std::vector<uint8_t>& key,
                const Network::TransportSocketFactory& factory) const override;
-  const Address::InstanceConstSharedPtr getLocal() const override { return local_; };
-  const Address::InstanceConstSharedPtr getRemote() const override { return remote_; };
 
 private:
   const absl::optional<std::string> override_server_name_;
@@ -87,8 +76,6 @@ private:
   const std::vector<std::string> override_alpn_list_;
   const std::vector<std::string> alpn_fallback_;
   const absl::optional<Network::ProxyProtocolData> proxy_protocol_options_;
-  const Address::InstanceConstSharedPtr local_;
-  const Address::InstanceConstSharedPtr remote_;
 };
 
 class TransportSocketOptionsUtility {
