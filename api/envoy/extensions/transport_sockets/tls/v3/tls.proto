@@ -3,6 +3,7 @@ syntax = "proto3";
 package envoy.extensions.transport_sockets.tls.v3;
 
 import "envoy/config/core/v3/address.proto";
+import "envoy/config/core/v3/base.proto";
 import "envoy/config/core/v3/extension.proto";
 import "envoy/extensions/transport_sockets/tls/v3/common.proto";
 import "envoy/extensions/transport_sockets/tls/v3/secret.proto";
@@ -140,6 +141,9 @@ message TlsKeyLog {
   // The remote IP address that will be used to filter the connection which should save the TLS key log
   // If it is not set, any remote IP address will be matched.
   repeated config.core.v3.CidrRange remote_address_range = 3;
+
+  // Runtime flag that controls whether the  TLS key log is enabled or not. If not specified, defaults to enabled.
+  config.core.v3.RuntimeFeatureFlag runtime_enabled = 4;
 }
 
 // TLS context shared by both client and server TLS contexts.

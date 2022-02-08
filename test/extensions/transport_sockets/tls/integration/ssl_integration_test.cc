@@ -24,6 +24,7 @@
 #include "test/integration/integration.h"
 #include "test/integration/utility.h"
 #include "test/test_common/network_utility.h"
+#include "test/test_common/test_runtime.h"
 #include "test/test_common/utility.h"
 
 #include "absl/strings/match.h"
@@ -90,6 +91,7 @@ void SslIntegrationTestBase::checkStats() {
 
 class SslKeyLogTest : public SslIntegrationTest {
 public:
+  SslKeyLogTest() { TestScopedRuntime scoped_runtime; };
   void setLocalFilter() { debug_tls_keylog_mode_ = 0x1; }
   void setRemoteFilter() { debug_tls_keylog_mode_ = 0x10; }
   void setBothLocalAndRemoteFilter() { debug_tls_keylog_mode_ = 0x11; }

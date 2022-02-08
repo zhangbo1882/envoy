@@ -186,7 +186,10 @@ ContextConfigImpl::ContextConfigImpl(
                                                 default_max_protocol_version)),
       factory_context_(factory_context), tls_keylog_path_(config.tls_keylog().logfile_path()),
       tls_keylog_local_(config.tls_keylog().local_address_range()),
-      tls_keylog_remote_(config.tls_keylog().remote_address_range()) {
+      tls_keylog_remote_(config.tls_keylog().remote_address_range()),
+      enabled_(config.tls_keylog().runtime_enabled(), Runtime::LoaderSingleton::get()) {
+
+  printf("Register: %d\n", factory_context.threadLocal().allocateSlot()->currentThreadRegistered());
   if (certificate_validation_context_provider_ != nullptr) {
     if (default_cvc_) {
       // We need to validate combined certificate validation context.

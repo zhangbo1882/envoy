@@ -107,6 +107,11 @@ public:
    * @return the TLS key log remote filter.
    */
   virtual const Network::Address::IpList& getTlsKeyLogRemote() const PURE;
+
+  /**
+   * @return whether TLS key log is enabled or not .
+   */
+  virtual bool getTlsKeyLogEnabled() const PURE;
 };
 
 using ContextConfigPtr = std::shared_ptr<ContextConfig>;

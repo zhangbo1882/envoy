@@ -11,6 +11,7 @@
 
 #include "source/common/common/empty_string.h"
 #include "source/common/json/json_loader.h"
+#include "source/common/runtime/runtime_protos.h"
 #include "source/common/ssl/tls_certificate_config_impl.h"
 
 namespace Envoy {
@@ -47,6 +48,7 @@ public:
   const Network::Address::IpList& getTlsKeyLogRemote() const override {
     return tls_keylog_remote_;
   };
+  bool getTlsKeyLogEnabled() const override { return enabled_.enabled(); }
 
   bool isReady() const override {
     const bool tls_is_ready =
@@ -110,6 +112,7 @@ private:
   const std::string tls_keylog_path_;
   const Network::Address::IpList tls_keylog_local_;
   const Network::Address::IpList tls_keylog_remote_;
+  Runtime::FeatureFlag enabled_;
 };
 
 class ClientContextConfigImpl : public ContextConfigImpl, public Envoy::Ssl::ClientContextConfig {

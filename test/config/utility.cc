@@ -1197,6 +1197,9 @@ void ConfigHelper::initializeTlsKeyLog(
     new_element_remote->set_address_prefix("127.0.0.1");
     new_element_remote->mutable_prefix_len()->set_value(32);
   }
+  tls_context.mutable_tls_keylog()->mutable_runtime_enabled()->set_runtime_key("tls_keylog");
+  tls_context.mutable_tls_keylog()->mutable_runtime_enabled()->mutable_default_value()->set_value(
+      "true");
 }
 
 void ConfigHelper::initializeTls(
