@@ -189,7 +189,7 @@ ContextConfigImpl::ContextConfigImpl(
       tls_keylog_remote_(config.tls_keylog().remote_address_range()),
       enabled_(config.tls_keylog().runtime_enabled(), Runtime::LoaderSingleton::get()) {
 
-  printf("Register: %d\n", factory_context.threadLocal().allocateSlot()->currentThreadRegistered());
+  //  auto loader = Runtime::LoaderSingleton::getExisting();
   if (certificate_validation_context_provider_ != nullptr) {
     if (default_cvc_) {
       // We need to validate combined certificate validation context.

@@ -59,6 +59,9 @@ bool InstanceImpl::SlotImpl::currentThreadRegisteredWorker(uint32_t index) {
 }
 
 bool InstanceImpl::SlotImpl::currentThreadRegistered() {
+  printf("Current index: %d\n", index_);
+  printf("Current size: %ld\n", thread_local_data_.data_.size());
+  printf("local data: %p\n", &thread_local_data_);
   return currentThreadRegisteredWorker(index_);
 }
 
@@ -101,6 +104,7 @@ void InstanceImpl::SlotImpl::set(InitializeCb cb) {
   }
 
   // Handle main thread.
+  printf("handle main thread (%p), index: %d\n", &thread_local_data_, index_);
   setThreadLocal(index_, cb(*parent_.main_thread_dispatcher_));
 }
 
@@ -177,6 +181,8 @@ void InstanceImpl::runOnAllThreads(Event::PostCb cb, Event::PostCb all_threads_c
 }
 
 void InstanceImpl::setThreadLocal(uint32_t index, ThreadLocalObjectSharedPtr object) {
+  printf("setThreaadLocal (%p), index: %d, size: %ld\n", &thread_local_data_, index,
+         thread_local_data_.data_.size());
   if (thread_local_data_.data_.size() <= index) {
     thread_local_data_.data_.resize(index + 1);
   }

@@ -239,6 +239,7 @@ void IntegrationTestServerImpl::createAndRunEnvoyServer(
     admin_address_ = server.admin().socket().connectionInfoProvider().localAddress();
     server_ = &server;
     stat_store_ = &stat_store;
+    tls.registerThread(server.dispatcher(), false);
     serverReady();
     server.run();
   }

@@ -78,17 +78,17 @@ void SslSocket::setTransportSocketCallbacks(Network::TransportSocketCallbacks& c
   BIO* bio = BIO_new_io_handle(&callbacks_->ioHandle());
   SSL_set_bio(rawSsl(), bio, bio);
 
-  Runtime::LoaderSingleton::get().snapshot().get("tls");
-  // if (config_->getTlsKeyLogEnabled()) {
-  auto match = tlsKeyLogMatch(callbacks_->connection().connectionInfoProvider().localAddress(),
-                              callbacks_->connection().connectionInfoProvider().remoteAddress());
-  if (match) {
-    ENVOY_LOG(debug, "Enable tls key log, log path: {}, index: {}",
-              config_->getTlsKeyLogPath().c_str(), ssl_ex_data_index_);
-    printf("Enable TLS\n");
-    enableTlsKeyLog();
+  printf("Runtime load\n");
+  if (config_->getTlsKeyLogEnabled()) {
+    auto match = tlsKeyLogMatch(callbacks_->connection().connectionInfoProvider().localAddress(),
+                                callbacks_->connection().connectionInfoProvider().remoteAddress());
+    if (match) {
+      ENVOY_LOG(debug, "Enable tls key log, log path: {}, index: {}",
+                config_->getTlsKeyLogPath().c_str(), ssl_ex_data_index_);
+      printf("Enale tls key\n");
+      enableTlsKeyLog();
+    }
   }
-  // }
 }
 
 SslSocket::ReadResult SslSocket::sslReadIntoSlice(Buffer::RawSlice& slice) {

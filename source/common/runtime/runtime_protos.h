@@ -47,7 +47,9 @@ public:
         default_value_(PROTOBUF_GET_WRAPPED_OR_DEFAULT(feature_flag_proto, default_value, true)),
         runtime_(runtime) {}
 
-  bool enabled() const { return runtime_.snapshot().getBoolean(runtime_key_, default_value_); }
+  bool enabled() const {
+    return runtime_.threadsafeSnapshot()->getBoolean(runtime_key_, default_value_);
+  }
 
 private:
   const std::string runtime_key_;
