@@ -147,6 +147,8 @@ public:
   Socket::Type socketType() const override { return sock_type_; }
   Address::Type addressType() const override { return addr_type_; }
   absl::optional<Address::IpVersion> ipVersion() const override;
+  void setListenerName(const std::string name) override {listener_name_ = name;};
+  std::string getListenerName(void) const override { return listener_name_;};
 
 protected:
   SocketImpl(IoHandlePtr&& io_handle, const Address::InstanceConstSharedPtr& local_address,
@@ -157,6 +159,7 @@ protected:
   OptionsSharedPtr options_;
   Socket::Type sock_type_;
   Address::Type addr_type_;
+  std::string listener_name_;
 };
 
 } // namespace Network

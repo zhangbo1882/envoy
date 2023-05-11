@@ -384,6 +384,9 @@ struct StreamInfoImpl : public StreamInfo {
     return downstream_transport_failure_reason_;
   }
 
+  void setListenerName(std::string listerner_name) override {
+    listener_name_ = listerner_name;
+  }  
   TimeSource& time_source_;
   SystemTime start_time_;
   MonotonicTime start_time_monotonic_;
@@ -438,6 +441,7 @@ private:
   BytesMeterSharedPtr downstream_bytes_meter_;
   bool is_shadow_{false};
   std::string downstream_transport_failure_reason_;
+  std::string listener_name_;
 };
 
 } // namespace StreamInfo

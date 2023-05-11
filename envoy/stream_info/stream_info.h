@@ -807,6 +807,8 @@ public:
    * @param failure_reason the downstream transport failure reason.
    */
   virtual void setDownstreamTransportFailureReason(absl::string_view failure_reason) PURE;
+
+  virtual void setListenerName(std::string name) PURE;
 };
 
 // An enum representation of the Proxy-Status error space.

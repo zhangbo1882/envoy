@@ -40,6 +40,7 @@ protected:
     }
   }
   bool isOpen() const override { return io_handle_ != nullptr && io_handle_->isOpen(); }
+  void setListenerName(const std::string name) override;
 };
 
 /**

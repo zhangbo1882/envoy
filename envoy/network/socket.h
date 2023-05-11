@@ -384,6 +384,10 @@ public:
    * @return the socket options stored earlier with addOption() and addOptions() calls, if any.
    */
   virtual const OptionsSharedPtr& options() const PURE;
+
+  virtual void setListenerName(const std::string name) PURE;
+
+  virtual std::string getListenerName(void) const PURE; 
 };
 
 using SocketPtr = std::unique_ptr<Socket>;

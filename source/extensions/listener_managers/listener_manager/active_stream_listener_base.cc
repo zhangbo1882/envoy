@@ -35,10 +35,14 @@ void ActiveStreamListenerBase::newConnection(Network::ConnectionSocketPtr&& sock
     stats_.no_filter_chain_match_.inc();
     stream_info->setResponseFlag(StreamInfo::ResponseFlag::NoRouteFound);
     stream_info->setResponseCodeDetails(StreamInfo::ResponseCodeDetails::get().FilterChainNotFound);
+    //stream_info->setListenerName(listener_.get());
     emitLogs(*config_, *stream_info);
     socket->close();
     return;
   }
+  stream_info->setListenerName(socket->getListenerName());
+  ENVOY_LOG(info, "listener name: {}",socket->getListenerName());
+
   stream_info->setFilterChainName(filter_chain->name());
   auto transport_socket = filter_chain->transportSocketFactory().createDownstreamTransportSocket();
   auto server_conn_ptr = dispatcher().createServerConnection(

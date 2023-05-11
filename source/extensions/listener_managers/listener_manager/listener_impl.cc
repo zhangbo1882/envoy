@@ -168,6 +168,7 @@ Network::SocketSharedPtr ListenSocketFactoryImpl::createListenSocketAndApplyOpti
 
     // Add the options to the socket_ so that STATE_LISTENING options can be
     // set after listen() is called and immediately before the workers start running.
+    socket->setListenerName(listener_name_);
     socket->addOptions(options_);
   }
   return socket;
