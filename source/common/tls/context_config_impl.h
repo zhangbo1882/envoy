@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "envoy/extensions/transport_sockets/tls/v3/cert.pb.h"
+#include "source/common/tls/session_cache/session_cache.h"
 #include "envoy/secret/secret_callbacks.h"
 #include "envoy/secret/secret_provider.h"
 #include "envoy/server/transport_socket_config.h"
@@ -178,6 +179,10 @@ public:
 
   bool fullScanCertsOnSNIMismatch() const override { return full_scan_certs_on_sni_mismatch_; }
 
+  SessionCache::ClientPtr getTlsSessionCacheClient() const {
+    return tls_session_cache_client_;
+  }
+
 private:
   ServerContextConfigImpl(
       const envoy::extensions::transport_sockets::tls::v3::DownstreamTlsContext& config,
@@ -208,6 +213,7 @@ private:
   const bool disable_stateless_session_resumption_;
   const bool disable_stateful_session_resumption_;
   bool full_scan_certs_on_sni_mismatch_;
+  SessionCache::ClientPtr tls_session_cache_client_;
 };
 
 } // namespace Tls
