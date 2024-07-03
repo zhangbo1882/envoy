@@ -26,7 +26,7 @@ GrpcClientImpl::GrpcClientImpl(Grpc::RawAsyncClientSharedPtr& async_client,
       service_method_(*Protobuf::DescriptorPool::generated_pool()->FindMethodByName(
           "envoy.service.tls_session_cache.v3.TlsSessionCacheService.TlsSession")) {}
 
-GrpcClientImpl::~GrpcClientImpl() { ASSERT(!callbacks_); }
+GrpcClientImpl::~GrpcClientImpl() {}
 
 void GrpcClientImpl::storeTlsSessionCache(Network::TransportSocketCallbacks* callbacks, SSL* ssl,
                                           int index, const std::string& session_id,
