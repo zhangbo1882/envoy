@@ -25,6 +25,17 @@ enum TYPE {
   FETCH = 1;
 }
 
+enum CODE {
+  // The response code to notify that the session id is added .
+  OK = 0;
+
+  // The session id already exits in the session cache, unlikely to happen.
+  ALEADY_EXIST = 1;
+
+  // The response code to notify that the session id is not found in session cache.
+  NOT_FOUND = 2;
+}
+
 message TlsSessionRequest {
   TYPE type = 1;
 
@@ -35,17 +46,6 @@ message TlsSessionRequest {
 }
 
 message TlsSessionResponse {
-  enum CODE {
-    // The response code to notify that the session id is added .
-    OK = 0;
-
-    // The session id already exits in the session cache, unlikely to happen.
-    ALEADY_EXIST = 1;
-
-    // The response code to notify that the session id is not found in session cache.
-    NOT_FOUND = 2;
-  }
-
   TYPE type = 1;
 
   CODE code = 2;

@@ -2,11 +2,15 @@
 
 #include <openssl/ssl.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include <vector>
+
+#include "envoy/service/tls_session_cache/v3/tls_session_cache.pb.h"
 
 #include "source/common/tracing/null_span_impl.h"
 
@@ -57,17 +61,6 @@ void GrpcClientImpl::fetchTlsSessionCache(Network::TransportSocketCallbacks* cal
                       Http::AsyncClient::RequestOptions().setTimeout(timeout_));
 }
 
-void debug(size_t len, const uint8_t* buffer) {
-  // Assuming this is within the onSuccess function where buffer is defined
-  std::cout << "Buffer contents in hex: ";
-  for (size_t i = 0; i < len; ++i) {
-    std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(buffer[i]);
-    if (i < len - 1) {
-      std::cout << " ";
-    }
-  }
-  std::cout << std::endl;
-}
 // Grpc::AsyncRequestCallbacks
 void GrpcClientImpl::onSuccess(
     std::unique_ptr<envoy::service::tls_session_cache::v3::TlsSessionResponse>&& response,
@@ -78,19 +71,18 @@ void GrpcClientImpl::onSuccess(
   if (response->type() == envoy::service::tls_session_cache::v3::FETCH) {
     // Copy the session data into the provided buffer.
     switch (response->code()) {
-    case envoy::service::tls_session_cache::v3::TlsSessionResponse_CODE_NOT_FOUND: {
+    case envoy::service::tls_session_cache::v3::NOT_FOUND: {
       ENVOY_LOG(debug, "Session not found, set session cache index");
       SSL_set_ex_data(ssl_, index_, static_cast<void*>(callbacks_));
       break;
     }
-    case envoy::service::tls_session_cache::v3::TlsSessionResponse_CODE_OK: {
+    case envoy::service::tls_session_cache::v3::OK: {
       ENVOY_LOG(debug, "fetching session succeed");
       auto len = response->session_data().length();
       if (len > 0) {
         uint8_t* buffer = new uint8_t[len];
         const uint8_t* session_data = buffer;
-        memcpy(buffer, response->session_data().c_str(), len);
-        // debug(len, session_data);
+        safeMemcpy(buffer, response->session_data().c_str());
         SSL_SESSION* s_new = d2i_SSL_SESSION(nullptr, &session_data, len);
         if (s_new == nullptr) {
           ERR_print_errors_fp(stderr);
@@ -120,11 +112,11 @@ void GrpcClientImpl::onSuccess(
     // The response is a STORE response, which means the session was successfully stored.
     // Nothing to do here.
     switch (response->code()) {
-    case envoy::service::tls_session_cache::v3::TlsSessionResponse_CODE_OK: {
+    case envoy::service::tls_session_cache::v3::OK: {
       ENVOY_LOG(debug, "Session stored successfully");
       break;
     }
-    case envoy::service::tls_session_cache::v3::TlsSessionResponse_CODE_ALEADY_EXIST: {
+    case envoy::service::tls_session_cache::v3::ALEADY_EXIST: {
       ENVOY_LOG(debug, "Session already exists");
       break;
     }
@@ -154,7 +146,10 @@ tlsSessionCacheClient(Server::Configuration::TransportSocketFactoryContext& fact
   auto client_or_error =
       factory_context.clusterManager().grpcAsyncClientManager().getOrCreateRawAsyncClient(
           grpc_service, factory_context.statsScope(), true);
-  THROW_IF_STATUS_NOT_OK(client_or_error, throw);
+  if (!client_or_error.ok()) {
+    // Return an error status instead of throwing an exception
+    return nullptr;
+  }
   return std::make_unique<SessionCache::GrpcClientImpl>(client_or_error.value(), timeout);
 }
 
