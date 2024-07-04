@@ -68,30 +68,31 @@ void GrpcClientImpl::onSuccess(
 
   ENVOY_LOG(debug, "response -  type: {}  code: {} session ID: {}  length: {}", response->type(),
             response->code(), response->session_id(), response->session_data().length());
+  SSL_set_ex_data(ssl_, index_, static_cast<void*>(callbacks_));
+
   if (response->type() == envoy::service::tls_session_cache::v3::FETCH) {
     // Copy the session data into the provided buffer.
     switch (response->code()) {
     case envoy::service::tls_session_cache::v3::NOT_FOUND: {
       ENVOY_LOG(debug, "Session not found, set session cache index");
-      SSL_set_ex_data(ssl_, index_, static_cast<void*>(callbacks_));
       break;
     }
     case envoy::service::tls_session_cache::v3::OK: {
       ENVOY_LOG(debug, "fetching session succeed");
       auto len = response->session_data().length();
       if (len > 0) {
-        uint8_t* buffer = new uint8_t[len];
-        const uint8_t* session_data = buffer;
-        safeMemcpy(buffer, response->session_data().c_str());
+        std::vector<uint8_t> buffer(len);
+        const uint8_t* session_data = buffer.data();
+        const char* src = response->session_data().c_str();
+        std::copy(src, src + len, buffer.begin());
         SSL_SESSION* s_new = d2i_SSL_SESSION(nullptr, &session_data, len);
         if (s_new == nullptr) {
           ERR_print_errors_fp(stderr);
-          ENVOY_LOG(debug, "Failed to restore SSL session");
+          ENVOY_LOG(error, "Failed to restore SSL session");
         } else {
           ENVOY_LOG(debug, "Restored SSL session successfully");
           SSL_CTX_add_session(SSL_get_SSL_CTX(ssl_), s_new);
         }
-        delete[] buffer;
       }
       break;
     }
