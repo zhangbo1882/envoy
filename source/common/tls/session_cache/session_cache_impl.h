@@ -69,10 +69,9 @@ private:
 /**
  * Builds the tls session cache client.
  */
-ClientPtr
-tlsSessionCacheClient(Server::Configuration::TransportSocketFactoryContext& factory_context,
-                      const envoy::config::core::v3::GrpcService& grpc_service,
-                      std::chrono::milliseconds timeout);
+ClientPtr tlsSessionCacheClient(Server::Configuration::CommonFactoryContext& factory_context,
+                                const envoy::config::core::v3::GrpcService& grpc_service,
+                                std::chrono::milliseconds timeout);
 
 } // namespace SessionCache
 } // namespace Tls

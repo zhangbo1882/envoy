@@ -140,13 +140,12 @@ void GrpcClientImpl::onFailure(Grpc::Status::GrpcStatus status, const std::strin
   }
 }
 
-ClientPtr
-tlsSessionCacheClient(Server::Configuration::TransportSocketFactoryContext& factory_context,
-                      const envoy::config::core::v3::GrpcService& grpc_service,
-                      std::chrono::milliseconds timeout) {
+ClientPtr tlsSessionCacheClient(Server::Configuration::CommonFactoryContext& factory_context,
+                                const envoy::config::core::v3::GrpcService& grpc_service,
+                                std::chrono::milliseconds timeout) {
   auto client_or_error =
       factory_context.clusterManager().grpcAsyncClientManager().getOrCreateRawAsyncClient(
-          grpc_service, factory_context.statsScope(), true);
+          grpc_service, factory_context.scope(), true);
   if (!client_or_error.ok()) {
     // Return an error status instead of throwing an exception
     return nullptr;
